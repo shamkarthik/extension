@@ -22,6 +22,8 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     context.subscriptions.push(disposable);
+
+
 }
 
 async function generateAndShowSummary(context: vscode.ExtensionContext) {

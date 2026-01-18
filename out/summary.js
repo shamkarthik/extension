@@ -89,50 +89,54 @@ class SummaryService {
         return 13;
     }
     async getAvailableModel() {
-        // Log all available models first
         try {
             const config = vscode.workspace.getConfiguration('dailyCodeSummary');
             const preferredModelId = config.get('aiModel', 'auto');
             console.log('Preferred model setting:', preferredModelId);
             const allModels = await vscode.lm.selectChatModels({});
-            console.log('Available AI models:', allModels.map(m => ({
-                id: m.id,
-                vendor: m.vendor,
-                family: m.family,
-                name: m.name
-            })));
-            if (allModels.length === 0) {
-                console.log('No AI models available in VS Code');
-                return null;
-            }
-            // If user selected a specific model, try to get it
+            // If user selected a specific model by ID
             if (preferredModelId !== 'auto') {
-                const selectedModels = await vscode.lm.selectChatModels({ id: preferredModelId });
-                if (selectedModels.length > 0) {
-                    console.log('Using user-selected model:', selectedModels[0].name);
-                    return selectedModels[0];
+                const specificModel = allModels.find(m => m.id === preferredModelId);
+                if (specificModel) {
+                    console.log('Using user-selected model:', specificModel.name);
+                    return specificModel;
                 }
-                console.log('User-selected model not found, falling back to auto discovery');
             }
-            // Try Antigravity/Google models first
-            const googleModels = await vscode.lm.selectChatModels({
-                vendor: 'google'
-            });
+            // Priority 1: Gemini / Antigravity (Google)
+            const googleModels = allModels.filter(m => m.vendor === 'google' ||
+                m.id.toLowerCase().includes('gemini') ||
+                m.name.toLowerCase().includes('gemini'));
             if (googleModels.length > 0) {
-                console.log('Using Google/Antigravity model:', googleModels[0].name);
+                console.log('Using Google model:', googleModels[0].name);
                 return googleModels[0];
             }
-            // Try Copilot models
-            const copilotModels = await vscode.lm.selectChatModels({
-                vendor: 'copilot'
-            });
-            if (copilotModels.length > 0) {
-                console.log('Using Copilot model:', copilotModels[0].name);
-                return copilotModels[0];
+            // Priority 2: Smart Copilot Models (GPT-4o, GPT-4, etc.)
+            // Based on your debug output, these are distinct models provided by vendor 'copilot'
+            const smartCopilotModels = allModels.filter(m => m.vendor === 'copilot' && (m.id.includes('gpt-4o') ||
+                m.id.includes('gpt-4') ||
+                m.id.includes('claude-3-5') ||
+                m.id.includes('gemini') // Sometimes Copilot wraps Gemini
+            ));
+            if (smartCopilotModels.length > 0) {
+                // Prefer GPT-4o if available
+                const gpt4o = smartCopilotModels.find(m => m.id.includes('gpt-4o'));
+                const chosen = gpt4o || smartCopilotModels[0];
+                console.log('Using Smart Copilot model:', chosen.name);
+                return chosen;
             }
-            // Try any available model
-            console.log('Using first available model:', allModels[0].name);
-            return allModels[0];
+            // Priority 3: Any Copilot model
+            const anyCopilot = allModels.find(m => m.vendor === 'copilot');
+            if (anyCopilot) {
+                console.log('Using standard Copilot model:', anyCopilot.name);
+                return anyCopilot;
+            }
+            // Priority 4: Anything else
+            if (allModels.length > 0) {
+                console.log('Using fallback available model:', allModels[0].name);
+                return allModels[0];
+            }
+            console.log('No AI models found');
+            return null;
         }
         catch (error) {
             console.error('Error selecting AI model:', error);
@@ -152,25 +156,19 @@ class SummaryService {
             const context = this.buildContextForAI(gitData);
             console.log('Context length:', context.length, 'characters');
             const messages = [
-                vscode.LanguageModelChatMessage.User(`You are a technical writer helping a developer summarize their daily work for a stand-up meeting or agile board update.
-
+                vscode.LanguageModelChatMessage.User(`You are a technical writer helping a developer summarize their daily work.
+    
 Below is the actual code that was written today, including git diffs showing the changes made.
 
 Your task:
-1. Analyze the CODE CHANGES (not just commit messages) to understand what was actually implemented
-2. Identify the business value and technical accomplishments
-3. Write a professional 100-400 word summary that explains:
-   - What features or functionality were added/modified
-   - What problems were solved
-   - What technical improvements were made
-   - The overall impact of the work
-
-Focus on WHAT THE CODE DOES, not just what files were changed.
-
+1. Analyze the CODE CHANGES to understand what was actually implemented.
+2. Write a PRECISE, CONCISE summary (max 150 words).
+3. Focus on the business value and key technical changes.
+   
 Git Activity with Code Diffs:
 ${context}
 
-Write a clear, professional summary suitable for a daily stand-up or agile board update. Be specific about what was accomplished based on the actual code changes.`)
+Output a short, high-impact summary.`)
             ];
             console.log('Sending request to AI model...');
             const response = await model.sendRequest(messages, {}, new vscode.CancellationTokenSource().token);
@@ -196,20 +194,22 @@ Write a clear, professional summary suitable for a daily stand-up or agile board
             }
             const context = this.buildContextForAI(gitData);
             const messages = [
-                vscode.LanguageModelChatMessage.User(`Based on the following code changes from today's work, identify future tasks or work items that should be created.
+                vscode.LanguageModelChatMessage.User(`Based on the following code changes, identify 3-5 important future tasks.
 
-Analyze the CODE DIFFS to look for:
-- TODO comments in the code
-- Incomplete features or partial implementations
-- Technical debt that needs addressing
-- Edge cases that aren't handled yet
-- Follow-up work mentioned in comments
-- Refactoring opportunities
+Analyze the CODE DIFFS for TODOs, incomplete features, refactoring needs, or test coverage gaps.
+
+Format each task EXACTLY as follows:
+- **[Task Title]** ([Est. Hours]h)
+  > [TLDR: 1-line description of what needs to be done]
+
+Rules:
+- LIMIT to 3-5 tasks total.
+- Estimate hours based on code complexity (0.5h to 4h).
+- Be specific and actionable.
+- Do NOT output anything else (no intro text).
 
 Git Activity with Code Diffs:
-${context}
-
-List each task on a new line, prefixed with "- ". Be specific and actionable. Focus on what you can see in the actual code changes.`)
+${context}`)
             ];
             console.log('Sending task extraction request to AI...');
             const response = await model.sendRequest(messages, {}, new vscode.CancellationTokenSource().token);
@@ -218,11 +218,22 @@ List each task on a new line, prefixed with "- ". Be specific and actionable. Fo
                 tasksText += fragment;
             }
             console.log('AI tasks response received, length:', tasksText.length);
-            // Parse tasks from response
+            // Parse tasks from response - looking for lines starting with -
             const tasks = tasksText
                 .split('\n')
-                .filter(line => line.trim().startsWith('-'))
-                .map(line => line.trim().substring(1).trim());
+                .filter(line => line.trim().length > 0)
+                // We keep the formatting as returned by the AI since we requested markdown
+                .reduce((acc, line) => {
+                const trimmed = line.trim();
+                if (trimmed.startsWith('-')) {
+                    acc.push(trimmed.substring(1).trim());
+                }
+                else if (trimmed.startsWith('>') && acc.length > 0) {
+                    // Append the TLDR line to the previous task
+                    acc[acc.length - 1] += '\n  ' + trimmed;
+                }
+                return acc;
+            }, []);
             return tasks.length > 0 ? tasks : this.generateFallbackTasks(gitData);
         }
         catch (error) {
@@ -232,7 +243,7 @@ List each task on a new line, prefixed with "- ". Be specific and actionable. Fo
     }
     buildContextForAI(gitData) {
         const context = [];
-        const MAX_DIFF_LENGTH = 8000; // Limit to avoid token limits
+        const MAX_DIFF_LENGTH = 12000; // Increased limit for better context
         let totalDiffLength = 0;
         // Add commits with actual code diffs
         gitData.commits.forEach((commit, index) => {
@@ -276,14 +287,14 @@ ${gitData.uncommittedChanges.files.length > 0 ? `\nUncommitted work in progress 
         const tasks = [];
         gitData.commits.forEach(commit => {
             if (commit.message.toLowerCase().includes('todo')) {
-                tasks.push(`Follow up on: ${commit.message}`);
+                tasks.push(`**Follow up** (0.5h)\n  > ${commit.message}`);
             }
             if (commit.message.toLowerCase().includes('wip') || commit.message.toLowerCase().includes('in progress')) {
-                tasks.push(`Complete: ${commit.message}`);
+                tasks.push(`**Complete WIP** (1.0h)\n  > ${commit.message}`);
             }
         });
         if (tasks.length === 0) {
-            tasks.push('No specific follow-up tasks identified');
+            tasks.push('**Review changes** (0.5h)\n  > detailed review of today\'s code');
         }
         return tasks;
     }

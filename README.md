@@ -4,7 +4,7 @@ Automatically generates daily summaries of your code changes for agile boards (J
 
 ## Features
 
-- 📊 **AI-Powered Summaries**: Uses VS Code's Copilot LM API to generate 100-400 word summaries
+- 📊 **AI-Powered Summaries**: Uses **Google Gemini**, **Antigravity**, or **VS Code Copilot** to generate high-quality summaries
 - ⏱️ **Hours Estimation**: Calculates work hours based on code volume (max 6h/day)
 - 🎯 **Story Points**: Estimates story points using Fibonacci scale (1-13)
 - 📝 **Task Extraction**: Identifies future tasks from TODOs and incomplete work
@@ -14,7 +14,10 @@ Automatically generates daily summaries of your code changes for agile boards (J
 ## Requirements
 
 - Git repository
-- Active GitHub Copilot subscription (for AI features)
+- One of the following AI extensions installed and active:
+  - **Gemini Code Assist** (Google)
+  - **Antigravity**
+  - **GitHub Copilot Chat**
 - VS Code 1.85.0 or higher
 
 ## Usage

@@ -3,6 +3,7 @@
   "displayName": "Daily Code Summary",
   "description": "Automatically generates daily summaries of your code changes for agile boards (Jira, DevOps, etc.)",
   "version": "0.0.1",
+  "publisher": "shamkarthiks",
   "engines": {
     "vscode": "^1.93.0"
   },
@@ -40,7 +41,7 @@
         "dailyCodeSummary.aiModel": {
           "type": "string",
           "default": "auto",
-          "description": "Select the AI model to use for generating summaries. 'auto' will try Google/Antigravity first, then Copilot."
+          "description": "Select the AI model to use for generating summaries."
         }
       }
     },
