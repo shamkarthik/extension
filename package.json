@@ -1,0 +1,74 @@
+{
+  "name": "daily-code-summary",
+  "displayName": "Daily Code Summary",
+  "description": "Automatically generates daily summaries of your code changes for agile boards (Jira, DevOps, etc.)",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.93.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "extensionDependencies": [
+    "github.copilot-chat"
+  ],
+  "capabilities": {
+    "languageModels": {
+      "access": true
+    }
+  },
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "dailyCodeSummary.showSummary",
+        "title": "Daily Summary: Show Today's Work"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "dailySummary",
+          "title": "Daily Summary",
+          "icon": "$(book)"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Daily Code Summary",
+      "properties": {
+        "dailyCodeSummary.aiModel": {
+          "type": "string",
+          "default": "auto",
+          "description": "Select the AI model to use for generating summaries. 'auto' will try Google/Antigravity first, then Copilot."
+        }
+      }
+    },
+    "views": {
+      "dailySummary": [
+        {
+          "type": "webview",
+          "id": "dailySummaryView",
+          "name": "Today's Summary"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "cross-env NODE_OPTIONS=\"--dns-result-order=ipv4first --network-family-autoselection-attempt-timeout=1000\" tsc -p ./",
+    "watch": "cross-env NODE_OPTIONS=\"--dns-result-order=ipv4first --network-family-autoselection-attempt-timeout=1000\" tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "cross-env NODE_OPTIONS=\"--dns-result-order=ipv4first --network-family-autoselection-attempt-timeout=1000\" node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/node": "18.x",
+    "@types/vscode": "^1.93.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0",
+    "cross-env": "^10.1.0",
+    "eslint": "^8.54.0",
+    "typescript": "^5.3.2"
+  }
+}
