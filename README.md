@@ -50,4 +50,13 @@ npm run compile
 
 ## License
 
-MIT
+**Proprietary / Source Available**
+
+Copyright (c) 2026 Sham Karthik S. All rights reserved.
+
+This project is source-available but proprietary. 
+
+- ✅ **Contributions**: You are welcome to submit Pull Requests to the official repository at https://github.com/shamkarthiks/extension.
+- ❌ **Distribution**: You may NOT distribute, publish, or release this extension, its VSIX artifacts, or any modified version of it.
+
+See the [LICENSE](LICENSE) file for the full terms and conditions.
