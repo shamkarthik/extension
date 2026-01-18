@@ -4,6 +4,11 @@
   "description": "Automatically generates daily summaries of your code changes for agile boards (Jira, DevOps, etc.)",
   "version": "0.0.1",
   "publisher": "shamkarthiks",
+  "license": "Proprietary",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shamkarthiks/extension"
+  },
   "engines": {
     "vscode": "^1.93.0"
   },

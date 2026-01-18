@@ -1,0 +1,32 @@
+PROPRIETARY SOURCE AVAILABLE LICENSE
+
+Copyright (c) 2026 Sham Karthik S. All rights reserved.
+
+1. DEFINITIONS
+   "Software" refers to the Daily Code Summary extension, including source code, documentation, and build artifacts.
+   "Author" refers to Sham Karthik S.
+
+2. LICENSE GRANT
+   Subject to the terms of this License, Author grants you a non-exclusive, non-transferable right to:
+   (a) View and inspect the source code for educational and evaluation purposes.
+   (b) Modify the source code for personal use or for the purpose of submitting contributions to the Author.
+   (c) Submit Pull Requests or patches to the Author's official repository.
+
+3. RESTRICTIONS
+   You may NOT:
+   (a) Distribute, sub-license, rent, lease, or sell the Software or any derivative works.
+   (b) Publish the Software (including VSIX files) to any public marketplace, including but not limited to the Visual Studio Code Marketplace, Open VSX, or any website.
+   (c) Create a fork of the Software for the purpose of public distribution.
+   (d) Use the Software or its source code for any commercial purpose without prior written permission from the Author.
+
+4. CONTRIBUTIONS
+   By submitting a contribution to the Author, you agree to grant the Author a perpetual, irrevocable, worldwide, royalty-free, and sub-licensable license to use, reproduce, modify, and distribute your contribution as part of the Software under any terms the Author chooses.
+
+5. OWNERSHIP
+   All title, ownership rights, and intellectual property rights in and to the Software remain exclusively with the Author.
+
+6. TERMINATION
+   This license terminates automatically if you breach any of its terms.
+
+7. NO WARRANTY
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY.
